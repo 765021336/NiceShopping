@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">CoolWeather</string>
+    <string name="province_title">中国</string>
+    <string name="kanwo">是兄弟就来砍我</string>
+    <string name="button">砍我</string>
+</resources>

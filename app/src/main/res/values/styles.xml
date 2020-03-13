@@ -1,0 +1,21 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="wt_tv">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:layout_marginLeft">10dp</item>
+    </style>
+
+    <style name="anim_popu" parent="@android:style/Animation.Activity">
+        <item name="android:windowEnterAnimation">@anim/in_anim</item>
+        <item name="android:windowExitAnimation">@anim/out_anim</item>
+    </style>
+</resources>
