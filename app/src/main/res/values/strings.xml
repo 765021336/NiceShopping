@@ -3,4 +3,7 @@
     <string name="province_title">中国</string>
     <string name="kanwo">是兄弟就来砍我</string>
     <string name="button">砍我</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

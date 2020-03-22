@@ -1,133 +1,83 @@
 package com.example.coolweather;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
-
-import android.content.Intent;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TabHost;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.coolweather.activitys.CityActivity;
-import com.example.coolweather.adapter.ProvinceAdapter;
-import com.example.coolweather.db.City;
-import com.example.coolweather.db.Province;
-import com.example.coolweather.mvp_test.MvpActivity;
-import com.example.coolweather.net.RetrofitHelper;
-import com.google.gson.Gson;
+import com.example.coolweather.activitys.BaseActivity;
+import com.example.coolweather.fragments.ClassifyFragment;
+import com.example.coolweather.fragments.HomeFragment;
+import com.example.coolweather.fragments.MyFragment;
+import com.example.coolweather.fragments.ShoppingFragment;
 
-import org.litepal.LitePal;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
+import androidx.fragment.app.FragmentTabHost;
+import butterknife.BindView;
 
-import java.util.ArrayList;
-import java.util.List;
+public class MainActivity extends BaseActivity {
+    @BindView(R.id.bottom_tabhost)
+    FragmentTabHost mFragmentTabHost;
+    private String tabName[] = {"首页", "分类", "购物车", "我的"};
+    private int imageButton[] = {R.drawable.selector_icon_home,
+            R.drawable.selector_icon_category, R.drawable.selector_icon_cart, R.drawable.selector_icon_mine};
+    private Class fragmentArray[] = {HomeFragment.class, ClassifyFragment.class, ShoppingFragment.class
+            , MyFragment.class};
 
-public class MainActivity extends AppCompatActivity {
-    private static final String TAG="MainActivity";
-    private RecyclerView mRecyclerView;
-    private ArrayList<String> mDatas=new ArrayList<>();
-    private List<Province> mList;
-    private ProvinceAdapter mAdapter;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if(Build.VERSION.SDK_INT>=21){
-            View decorView=getWindow().getDecorView();
-            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    |View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-            getWindow().setStatusBarColor(Color.TRANSPARENT);
-        }
-        setContentView(R.layout.activity_main);
-        TextView textView=findViewById(R.id.textView);
-        textView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, MvpActivity.class);
-                startActivity(intent);
-            }
-        });
-        mRecyclerView = findViewById(R.id.province_list);
-
-        //线性布局
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        mRecyclerView.setLayoutManager(linearLayoutManager);
-
-        //初始化分隔线、添加分隔线（系统自带）
-        DividerItemDecoration mDivider = new
-                DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
-        mRecyclerView.addItemDecoration(mDivider);
-
-        mAdapter = new ProvinceAdapter(MainActivity.this, mDatas);
-        mRecyclerView.setAdapter(mAdapter);
-        mAdapter.setOnItemClickListener(new ProvinceAdapter.OnRecyItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                Intent intent = new Intent(MainActivity.this, CityActivity.class);
-                intent.putExtra("id",String.valueOf(position+1));
-                intent.putExtra("name",mDatas.get(position));
-                startActivity(intent);
-                Toast.makeText(MainActivity.this, ""+position, Toast.LENGTH_SHORT).show();
-            }
-        });
-
-
-
-        mList= LitePal.findAll(Province.class);
-        if(mList.size()>0){
-            Log.i(TAG,"执行数据库");
-           mDatas.clear();
-           for (int i = 0; i < mList.size();i++) {
-                mDatas.add(mList.get(i).getName());
-           }
-           mAdapter.notifyDataSetChanged();
-        }else {
-            queryProvince();
-        }
-
-
-
+    protected int getContentResourseId() {
+        return R.layout.activity_main;
     }
 
-    private void queryProvince() {
-        RetrofitHelper retrofitHelper = new RetrofitHelper(MainActivity.this);
-        retrofitHelper.getData()
-                .subscribeOn(Schedulers.io())//IO线程
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<ArrayList<Province>>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
+    @Override
+    protected void init() {
+        mFragmentTabHost.setup(this, getSupportFragmentManager(), R.id.content_fragment);
+        for(int i =0; i<tabName.length; i++) {
+            TabHost.TabSpec spec = mFragmentTabHost.newTabSpec(tabName[i]).setIndicator(getView(i));
 
-                    }
-                    @Override
-                    public void onNext(ArrayList<Province> provinces) {
-                        for (int i = 0; i < provinces.size();i++) {
-                            provinces.get(i).save();//保存到数据库
-                            mDatas.add(provinces.get(i).getName());
-                            Log.i(TAG,provinces.get(i).getName());
-                        }
-                        mAdapter.notifyDataSetChanged();
-                    }
-                    @Override
-                    public void onError(Throwable e) {
+            mFragmentTabHost.addTab(spec, fragmentArray[i], null);
 
-                    }
-                    @Override
-                    public void onComplete() {
+            //设置背景(必须在addTab之后，由于需要子节点（底部菜单按钮）否则会出现空指针异常)
+            //mFragmentTabHost.getTabWidget().getChildAt(i).setBackgroundResource(R.drawable.bt_selector);
+        }
+        //去掉分隔线
+        mFragmentTabHost.getTabWidget().setShowDividers(LinearLayout.SHOW_DIVIDER_NONE);
+        mFragmentTabHost.setCurrentTab(0);//选中第一个
+    }
 
-                    }
-                });
+
+    private View getView(int i) {
+        //取得布局实例
+        View view = View.inflate(MainActivity.this, R.layout.tabhost_content, null);
+
+        //取得布局对象
+        ImageView imageView = (ImageView) view.findViewById(R.id.tabhost_content_img);
+        TextView textView = (TextView) view.findViewById(R.id.tabhost_content_text);
+
+        //设置图标
+        imageView.setImageResource(imageButton[i]);
+        //设置标题
+        textView.setText(tabName[i]);
+        return view;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

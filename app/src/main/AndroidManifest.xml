@@ -10,7 +10,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".mvp_test.MvpActivity"></activity>
+        <activity android:name=".activitys.BaseActivity"></activity>
+        <activity android:name=".mvp_test.MvpActivity" />
         <activity android:name=".activitys.WeatherActivity" />
         <activity android:name=".activitys.CountyActivity" />
         <activity android:name=".activitys.CityActivity" />
@@ -21,8 +22,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".service.MyService"/>
-        <service android:name=".service.ForegroundService"/>
+
+        <service android:name=".service.MyService" />
+        <service android:name=".service.ForegroundService" />
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
